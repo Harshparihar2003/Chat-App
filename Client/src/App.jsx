@@ -1,5 +1,6 @@
-import Register from "./Register"
 import axios from "axios"
+import { UserContextProvider } from "./UserContext";
+import Routes from "./Routes";
 
 function App() {
 
@@ -8,7 +9,9 @@ function App() {
 
   return (
     <>
-      <Register/>
+    <UserContextProvider>
+      <Routes/>
+    </UserContextProvider>
     </>
   )
 }
