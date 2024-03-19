@@ -5,6 +5,7 @@ const jwt = require("jsonwebtoken");
 const cors = require("cors");
 const cookieParser = require("cookie-parser");
 const bcrypt = require("bcryptjs")
+const ws = require("ws");
 const User = require("./models/User")
 const PORT = 4000;
 const app = express();
@@ -76,6 +77,32 @@ app.post("/register", async (req,res)=>{
     
 })
 
-app.listen(PORT,()=>{
+const server = app.listen(PORT,()=>{
     console.log(`App Listening on ${PORT}`);
+})
+
+const wss = new ws.WebSocketServer({server})
+wss.on("connection",(connection,req)=>{
+    // console.log("Web socket connected");
+    // connection.send("Heelo there")
+    const cookies = req.headers.cookie;
+    if(cookies){
+        const tokenCookie = cookies.split(",").find(str => str.startsWith("token="));
+        if(tokenCookie){
+            const token = tokenCookie.split("=")[1];
+            if(token){
+                jwt.verify(token, jwt_secret, {}, (err,userData)=>{
+                    if(err) throw err;
+                    const {userId, username} = userData;
+                    connection.userId = userId;
+                    connection.username = username;
+                })
+            }
+        }
+    }
+    [...wss.clients].forEach(client=>{
+        client.send(JSON.stringify({
+            online : [...wss.clients].map((c) => ({userId : c.userId, username : c.username}))
+        }))
+    })
 })
