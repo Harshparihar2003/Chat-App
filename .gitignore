@@ -24,8 +24,9 @@ dist-ssr
 *.sw?
 
 
-Server/.env
-Client/.env
+# Server/.env
+# Client/.env
+.env
 Server/node_modules
 Client/node_modules
 Server/uploads/*
